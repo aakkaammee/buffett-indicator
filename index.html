@@ -405,7 +405,8 @@ const clearKey = ()  => localStorage.removeItem(LS_KEY);
 
 // ═══════════════════════════════════════════════════════════
 //  FRED API FETCH
-//  - 直接アクセスを試み、CORSエラーならプロキシ経由
+//  - 直接アクセス（FRED は CORS 対応）
+//  - 400 = APIキー無効、他のエラーはプロキシ経由で再試行
 // ═══════════════════════════════════════════════════════════
 async function fredFetch(seriesId, apiKey) {
   const params = new URLSearchParams({
@@ -416,22 +417,38 @@ async function fredFetch(seriesId, apiKey) {
   });
   const directUrl = `${FRED_BASE}?${params}`;
 
-  // 直接取得を試みる
+  let lastError = null;
+
+  // ① 直接アクセス
   try {
     const r = await fetch(directUrl);
+    const j = await r.json();
     if (!r.ok) {
-      const j = await r.json().catch(() => ({}));
-      throw new Error(j.error_message || `HTTP ${r.status}`);
+      // 400 = APIキー不正 → プロキシで試しても同じなので即エラー
+      const msg = j?.error_message || `HTTP ${r.status}`;
+      if (r.status === 400) throw new Error('APIキーが無効です。正しい32文字のキーを再入力してください。');
+      throw new Error(msg);
     }
-    return (await r.json()).observations || [];
+    return j.observations || [];
   } catch (e) {
-    // CORSエラーの場合はプロキシ経由で再試行
-    if (e.message.includes('Failed to fetch') || e.message.includes('CORS')) {
-      const r2 = await fetch(PROXY + encodeURIComponent(directUrl));
-      if (!r2.ok) throw new Error(`Proxy error: ${r2.status}`);
-      return (await r2.json()).observations || [];
+    lastError = e;
+    // APIキーエラーはそのまま投げる
+    if (e.message.includes('APIキーが無効')) throw e;
+  }
+
+  // ② CORSブロック等の場合のみプロキシ経由で再試行
+  try {
+    const r2 = await fetch(PROXY + encodeURIComponent(directUrl));
+    const j2 = await r2.json();
+    if (!r2.ok) {
+      const msg = j2?.error_message || '';
+      if (r2.status === 400 || msg.includes('api_key'))
+        throw new Error('APIキーが無効です。正しい32文字のキーを再入力してください。');
+      throw new Error(`データ取得失敗 (${r2.status})`);
     }
-    throw e;
+    return j2.observations || [];
+  } catch (e) {
+    throw e.message.includes('APIキー') ? e : (lastError || e);
   }
 }
 
