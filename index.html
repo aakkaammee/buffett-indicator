@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>バフェット指数 LIVE | 米国 vs 日本</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:    #07090d;
+      --panel: #0c1016;
+      --bdr:   #182030;
+      --us:    #38bdf8;
+      --jp:    #fb923c;
+      --safe:  #34d399;
+      --warn:  #fbbf24;
+      --dngr:  #f87171;
+      --txt:   #cbd5e1;
+      --dim:   #475569;
+      --bright:#f1f5f9;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      background:var(--bg);color:var(--txt);
+      font-family:'Noto Sans JP',sans-serif;
+      min-height:100vh;padding:28px 20px 48px;
+    }
+    body::before{
+      content:'';position:fixed;inset:0;
+      background-image:
+        linear-gradient(rgba(56,189,248,.02) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(56,189,248,.02) 1px,transparent 1px);
+      background-size:48px 48px;pointer-events:none;z-index:0;
+    }
+    .wrap{max-width:980px;margin:0 auto;position:relative;z-index:1;}
+
+    /* ── SETUP SCREEN ── */
+    #setup-screen{
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      animation:up .5s ease both;
+    }
+    .setup-card{
+      background:var(--panel);border:1px solid var(--bdr);
+      border-radius:16px;padding:40px 36px;max-width:480px;width:100%;
+      position:relative;overflow:hidden;
+    }
+    .setup-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--us),var(--jp));
+    }
+    .setup-icon{font-size:36px;margin-bottom:16px;}
+    .setup-card h2{
+      font-size:22px;font-weight:700;color:var(--bright);margin-bottom:8px;
+    }
+    .setup-card p{
+      font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:24px;
+    }
+    .steps{
+      background:#080c12;border:1px solid var(--bdr);
+      border-radius:10px;padding:18px 20px;margin-bottom:24px;
+    }
+    .step{
+      display:flex;align-items:flex-start;gap:12px;
+      font-size:13px;line-height:1.6;margin-bottom:10px;
+    }
+    .step:last-child{margin-bottom:0;}
+    .step-num{
+      background:rgba(56,189,248,.15);color:var(--us);
+      font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+      width:22px;height:22px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+      margin-top:1px;
+    }
+    .step a{color:var(--us);text-decoration:none;}
+    .step a:hover{text-decoration:underline;}
+    .input-row{display:flex;gap:8px;margin-bottom:12px;}
+    #key-input{
+      flex:1;background:#080c12;border:1px solid var(--bdr);
+      border-radius:8px;padding:10px 14px;
+      font-family:'IBM Plex Mono',monospace;font-size:13px;
+      color:var(--bright);outline:none;
+      transition:border-color .2s;
+    }
+    #key-input:focus{border-color:var(--us);}
+    #key-input::placeholder{color:var(--dim);}
+    #key-btn{
+      background:var(--us);color:#07090d;
+      border:none;border-radius:8px;padding:10px 18px;
+      font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
+      cursor:pointer;white-space:nowrap;transition:opacity .2s;
+    }
+    #key-btn:hover{opacity:.85;}
+    .setup-note{
+      font-family:'IBM Plex Mono',monospace;font-size:10px;
+      color:var(--dim);text-align:center;line-height:1.7;
+    }
+    .err-msg{
+      color:var(--dngr);font-size:12px;
+      font-family:'IBM Plex Mono',monospace;
+      margin-bottom:10px;display:none;
+    }
+
+    /* ── DASHBOARD ── */
+    #dashboard{animation:up .4s ease both;}
+
+    /* header */
+    .head{
+      display:flex;flex-wrap:wrap;gap:14px;
+      align-items:flex-end;justify-content:space-between;
+      margin-bottom:26px;
+    }
+    .head-left{border-left:3px solid var(--us);padding-left:14px;}
+    .eyebrow{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:10px;letter-spacing:3px;
+      color:var(--us);text-transform:uppercase;margin-bottom:6px;
+    }
+    h1{font-size:clamp(18px,4vw,27px);font-weight:700;color:var(--bright);}
+    h1 .us{color:var(--us);}
+    h1 .jp{color:var(--jp);}
+    .head-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .live-pill{
+      display:flex;align-items:center;gap:7px;
+      background:rgba(52,211,153,.08);
+      border:1px solid rgba(52,211,153,.25);
+      border-radius:999px;padding:5px 13px;
+      font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--safe);
+    }
+    .dot{
+      width:7px;height:7px;border-radius:50%;background:var(--safe);
+      animation:pulse 1.8s ease-in-out infinite;
+    }
+    .icon-btn{
+      background:transparent;border:1px solid var(--bdr);
+      border-radius:8px;padding:6px 12px;
+      font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);
+      cursor:pointer;transition:all .2s;
+    }
+    .icon-btn:hover{border-color:var(--us);color:var(--us);}
+
+    /* cards */
+    .cards{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+      gap:10px;margin-bottom:20px;
+    }
+    .card{
+      background:var(--panel);border:1px solid var(--bdr);
+      border-radius:10px;padding:14px 16px;
+      position:relative;overflow:hidden;transition:border-color .2s;
+    }
+    .card:hover{border-color:#2a3f55;}
+    .card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+    .card.us::after {background:var(--us);}
+    .card.jp::after {background:var(--jp);}
+    .card.gap::after{background:var(--warn);}
+    .card.ref::after{background:var(--dim);}
+    .clabel{
+      font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;
+      color:var(--dim);text-transform:uppercase;margin-bottom:8px;
+    }
+    .cval{
+      font-family:'IBM Plex Mono',monospace;
+      font-size:clamp(20px,3vw,28px);font-weight:600;line-height:1;
+    }
+    .card.us  .cval{color:var(--us);}
+    .card.jp  .cval{color:var(--jp);}
+    .card.gap .cval{color:var(--warn);}
+    .card.ref .cval{color:var(--dim);}
+    .csub{font-size:11px;color:var(--dim);margin-top:5px;}
+    .badge{
+      display:inline-block;margin-top:7px;padding:2px 8px;border-radius:4px;
+      font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;
+    }
+    .bd{background:rgba(248,113,113,.12);color:var(--dngr);border:1px solid rgba(248,113,113,.3);}
+    .bw{background:rgba(251,191,36,.12); color:var(--warn);border:1px solid rgba(251,191,36,.3);}
+    .bs{background:rgba(52,211,153,.1);  color:var(--safe);border:1px solid rgba(52,211,153,.25);}
+
+    /* chart panel */
+    .cpanel{
+      background:var(--panel);border:1px solid var(--bdr);
+      border-radius:12px;padding:22px 18px;margin-bottom:16px;
+    }
+    .ctop{
+      display:flex;flex-wrap:wrap;align-items:center;
+      justify-content:space-between;gap:10px;margin-bottom:16px;
+    }
+    .ctitle{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--txt);}
+    .legend{display:flex;gap:16px;flex-wrap:wrap;}
+    .leg{display:flex;align-items:center;gap:6px;
+         font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);}
+    .ldot{width:12px;height:3px;border-radius:2px;}
+    .cbox{position:relative;height:380px;}
+
+    /* loading overlay */
+    .loader{
+      position:absolute;inset:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:14px;background:var(--panel);border-radius:8px;z-index:5;
+      transition:opacity .3s;
+    }
+    .loader.off{opacity:0;pointer-events:none;}
+    .spin{
+      width:30px;height:30px;border-radius:50%;
+      border:2px solid var(--bdr);border-top-color:var(--us);
+      animation:spin .7s linear infinite;
+    }
+    .ltxt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);text-align:center;}
+    .lerr{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dngr);text-align:center;padding:0 20px;}
+
+    /* footer row */
+    .foot-row{
+      display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:8px;margin-top:10px;
+    }
+    .utime{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);}
+    .freq-note{
+      font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);
+      display:flex;gap:14px;
+    }
+    .freq-us{color:rgba(56,189,248,.6);}
+    .freq-jp{color:rgba(251,146,60,.6);}
+
+    /* zones */
+    .zones{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:10px;margin-bottom:16px;
+    }
+    .zone{
+      background:var(--panel);border:1px solid var(--bdr);
+      border-radius:8px;padding:12px 14px;
+      display:flex;align-items:center;gap:12px;
+    }
+    .zb{width:4px;height:38px;border-radius:2px;flex-shrink:0;}
+    .zrange{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--bright);}
+    .zdesc{font-size:11px;color:var(--dim);margin-top:3px;}
+
+    footer{
+      font-size:11px;color:var(--dim);text-align:center;line-height:2;
+    }
+    footer a{color:#60a5fa;text-decoration:none;}
+    footer a:hover{text-decoration:underline;}
+
+    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    @keyframes spin{to{transform:rotate(360deg);}}
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SETUP SCREEN (FRED APIキー未設定時に表示)
+══════════════════════════════════════════════ -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-icon">⚡</div>
+    <h2>FRED API キーを設定</h2>
+    <p>米国の<strong style="color:var(--us)">月次リアルタイムデータ</strong>を取得するために、
+       無料の FRED API キーが必要です。<br>
+       日本のデータは World Bank API（キー不要）から自動取得します。</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div><a href="https://fredaccount.stlouisfed.org/login/secure/" target="_blank">fredaccount.stlouisfed.org</a> で無料アカウント作成</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>ログイン後「API Keys」→「Request API Key」をクリック</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>発行された 32文字のキーを下に貼り付けて「開始」</div>
+      </div>
+    </div>
+
+    <div class="err-msg" id="setup-err">⚠ キーが無効です。32文字の英数字を確認してください。</div>
+    <div class="input-row">
+      <input id="key-input" placeholder="例: abcdef1234567890abcdef1234567890" maxlength="40" />
+      <button id="key-btn">開始 →</button>
+    </div>
+    <div class="setup-note">
+      キーはこのブラウザの localStorage に保存されます。<br>
+      外部サーバーには一切送信されません。
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN DASHBOARD
+══════════════════════════════════════════════ -->
+<div id="dashboard" hidden>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="head">
+    <div class="head-left">
+      <div class="eyebrow">BUFFETT INDICATOR — LIVE DATA</div>
+      <h1>バフェット指数<br><span class="us">米国（月次）</span> vs <span class="jp">日本（年次）</span></h1>
+    </div>
+    <div class="head-right">
+      <div class="live-pill"><div class="dot"></div>AUTO FETCH</div>
+      <button class="icon-btn" id="refresh-btn">↻ 再取得</button>
+      <button class="icon-btn" id="reset-btn">⚙ API設定</button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="cards">
+    <div class="card us">
+      <div class="clabel">🇺🇸 米国 最新値</div>
+      <div class="cval" id="val-us">—</div>
+      <div class="csub" id="sub-us">取得中…</div>
+      <div id="badge-us"></div>
+    </div>
+    <div class="card jp">
+      <div class="clabel">🇯🇵 日本 最新値</div>
+      <div class="cval" id="val-jp">—</div>
+      <div class="csub" id="sub-jp">取得中…</div>
+      <div id="badge-jp"></div>
+    </div>
+    <div class="card gap">
+      <div class="clabel">日米 乖離幅</div>
+      <div class="cval" id="val-gap">—</div>
+      <div class="csub">米国が上回る幅</div>
+    </div>
+    <div class="card ref">
+      <div class="clabel">バフェット適正値</div>
+      <div class="cval">75–90%</div>
+      <div class="csub">2001年 Forbes誌より</div>
+      <div class="badge bs">FAIR VALUE ZONE</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="cpanel">
+    <div class="ctop">
+      <div class="ctitle">MARKET CAP / GDP (%) — 月次 &amp; 年次</div>
+      <div class="legend">
+        <div class="leg"><div class="ldot" style="background:var(--us)"></div>米国（月次・FRED）</div>
+        <div class="leg"><div class="ldot" style="background:var(--jp)"></div>日本（年次・World Bank）</div>
+        <div class="leg"><div class="ldot" style="background:var(--safe);opacity:.6"></div>適正ゾーン</div>
+      </div>
+    </div>
+    <div class="cbox">
+      <div class="loader" id="loader">
+        <div class="spin"></div>
+        <div class="ltxt">FRED API &amp; World Bank からデータ取得中…</div>
+      </div>
+      <canvas id="chart"></canvas>
+    </div>
+    <div class="foot-row">
+      <div class="utime" id="utime">—</div>
+      <div class="freq-note">
+        <span class="freq-us">● 米国：月次更新</span>
+        <span class="freq-jp">● 日本：年次更新</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONES -->
+  <div class="zones">
+    <div class="zone">
+      <div class="zb" style="background:var(--safe)"></div>
+      <div><div class="zrange">〜90%</div><div class="zdesc">割安 ／ 買いシグナル（バフェット推奨）</div></div>
+    </div>
+    <div class="zone">
+      <div class="zb" style="background:var(--warn)"></div>
+      <div><div class="zrange">90〜120%</div><div class="zdesc">やや割高 ／ 要注意ゾーン</div></div>
+    </div>
+    <div class="zone">
+      <div class="zb" style="background:var(--dngr)"></div>
+      <div><div class="zrange">120%〜</div><div class="zdesc">割高警戒 ／ バブルリスク</div></div>
+    </div>
+  </div>
+
+  <footer>
+    米国データ：<a href="https://fred.stlouisfed.org/series/WILL5000INDFC" target="_blank">FRED WILL5000INDFC</a>（Wilshire 5000 Full Cap Index）÷
+    <a href="https://fred.stlouisfed.org/series/GDP" target="_blank">GDP</a>（名目・四半期）×100　月次近似値<br>
+    日本データ：<a href="https://data.worldbank.org/indicator/CM.MKT.LCAP.GD.ZS" target="_blank">World Bank CM.MKT.LCAP.GD.ZS</a>（上場時価総額 ÷ GDP）　年次<br>
+    本チャートは情報提供目的であり、投資助言ではありません。
+  </footer>
+</div>
+</div><!-- /dashboard -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const LS_KEY      = 'fred_buffett_api_key';
+const FRED_BASE   = 'https://api.stlouisfed.org/fred/series/observations';
+const PROXY       = 'https://corsproxy.io/?'; // fallback if FRED blocks direct CORS
+const REFRESH_MS  = 60 * 60 * 1000;           // 1時間ごとに自動再取得
+const START_DATE  = '1995-01-01';
+
+let chartInstance = null;
+let refreshTimer  = null;
+
+// ═══════════════════════════════════════════════════════════
+//  API KEY MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+const getKey   = ()  => localStorage.getItem(LS_KEY) || '';
+const saveKey  = (k) => localStorage.setItem(LS_KEY, k.trim());
+const clearKey = ()  => localStorage.removeItem(LS_KEY);
+
+// ═══════════════════════════════════════════════════════════
+//  FRED API FETCH
+//  - 直接アクセスを試み、CORSエラーならプロキシ経由
+// ═══════════════════════════════════════════════════════════
+async function fredFetch(seriesId, apiKey) {
+  const params = new URLSearchParams({
+    series_id:         seriesId,
+    api_key:           apiKey,
+    file_type:         'json',
+    observation_start: START_DATE,
+  });
+  const directUrl = `${FRED_BASE}?${params}`;
+
+  // 直接取得を試みる
+  try {
+    const r = await fetch(directUrl);
+    if (!r.ok) {
+      const j = await r.json().catch(() => ({}));
+      throw new Error(j.error_message || `HTTP ${r.status}`);
+    }
+    return (await r.json()).observations || [];
+  } catch (e) {
+    // CORSエラーの場合はプロキシ経由で再試行
+    if (e.message.includes('Failed to fetch') || e.message.includes('CORS')) {
+      const r2 = await fetch(PROXY + encodeURIComponent(directUrl));
+      if (!r2.ok) throw new Error(`Proxy error: ${r2.status}`);
+      return (await r2.json()).observations || [];
+    }
+    throw e;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WORLD BANK API FETCH（キー不要・CORS対応）
+// ═══════════════════════════════════════════════════════════
+async function wbFetch(country) {
+  const url =
+    `https://api.worldbank.org/v2/country/${country}` +
+    `/indicator/CM.MKT.LCAP.GD.ZS?format=json&per_page=50&mrv=50`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`World Bank HTTP ${r.status}`);
+  const j = await r.json();
+  return (j[1] || [])
+    .filter(d => d.value !== null)
+    .map(d => ({ date: `${d.date}-07-01`, value: +d.value.toFixed(2) }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  US バフェット指数の計算
+//  Wilshire5000 ÷ 名目GDP × 100（月次近似）
+// ═══════════════════════════════════════════════════════════
+async function getUSBuffett(apiKey) {
+  // 並列で2系列取得
+  const [willObs, gdpObs] = await Promise.all([
+    fredFetch('WILL5000INDFC', apiKey), // Wilshire Full Cap Index（月次）
+    fredFetch('GDP',           apiKey), // 名目GDP・十億ドル（四半期）
+  ]);
+
+  // GDPを日付→値のマップに変換（四半期 → 月次に前方補完）
+  const gdpSorted = gdpObs
+    .filter(o => o.value !== '.')
+    .map(o => ({ date: o.date, value: +o.value }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  function lookupGDP(dateStr) {
+    let v = null;
+    for (const g of gdpSorted) {
+      if (g.date <= dateStr) v = g.value;
+      else break;
+    }
+    return v;
+  }
+
+  // 月次バフェット指数を計算
+  return willObs
+    .filter(o => o.value !== '.')
+    .map(o => {
+      const gdp = lookupGDP(o.date);
+      if (!gdp || !+o.value) return null;
+      // Wilshire Full Cap Index ≈ 総時価総額（十億ドル）
+      // GDP も十億ドル単位 → 比率 × 100 = %
+      const pct = +((+o.value / gdp) * 100).toFixed(2);
+      return { date: o.date, value: pct };
+    })
+    .filter(Boolean);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BADGE ヘルパー
+// ═══════════════════════════════════════════════════════════
+function makeBadge(v) {
+  if (v < 75)  return ['bs', '割安 / UNDERVALUED'];
+  if (v < 90)  return ['bs', '適正 / FAIR VALUE'];
+  if (v < 120) return ['bw', '要注意 / MODERATE'];
+  return ['bd', '割高警戒 / OVERVALUED'];
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHART 描画
+// ═══════════════════════════════════════════════════════════
+function renderChart(usData, jpData) {
+  Chart.defaults.color       = '#475569';
+  Chart.defaults.borderColor = '#182030';
+  Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+
+  const canvas = document.getElementById('chart');
+  const ctx    = canvas.getContext('2d');
+
+  // グラデーション生成
+  function grad(hex) {
+    const g = ctx.createLinearGradient(0, 0, 0, 380);
+    g.addColorStop(0, hex + '20');
+    g.addColorStop(1, hex + '00');
+    return g;
+  }
+
+  // 既存チャートを破棄
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  // 全データポイントをひとつの時系列に統合
+  const allDates = [
+    ...usData.map(d => d.date),
+    ...jpData.map(d => d.date),
+  ].sort().filter((v, i, a) => a.indexOf(v) === i);
+
+  const usMap = Object.fromEntries(usData.map(d => [d.date, d.value]));
+  const jpMap = Object.fromEntries(jpData.map(d => [d.date, d.value]));
+
+  const labels = allDates;
+  const usVals = allDates.map(d => usMap[d] ?? null);
+  const jpVals = allDates.map(d => jpMap[d] ?? null);
+
+  // ラベルを年/月に整形
+  const fmtLabel = (dateStr) => {
+    const [y, m] = dateStr.split('-');
+    return m === '01' ? y : `${y}/${+m}`;
+  };
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels.map(fmtLabel),
+      datasets: [
+        // 適正ゾーン（上限 → 下限を塗りつぶし）
+        {
+          label: '適正上限',
+          data: labels.map(() => 90),
+          borderColor: 'transparent',
+          backgroundColor: 'rgba(52,211,153,0.07)',
+          borderWidth: 0, pointRadius: 0, fill: '+1', order: 10,
+        },
+        {
+          label: '適正下限',
+          data: labels.map(() => 75),
+          borderColor: 'rgba(52,211,153,0.35)',
+          backgroundColor: 'transparent',
+          borderWidth: 1, borderDash: [5, 5], pointRadius: 0, fill: false, order: 10,
+        },
+        // 米国（月次）
+        {
+          label: '米国',
+          data: usVals,
+          borderColor: '#38bdf8',
+          backgroundColor: grad('#38bdf8'),
+          borderWidth: 2, tension: 0.3, fill: 'origin', order: 1,
+          spanGaps: false,
+          pointRadius: 0, pointHoverRadius: 5,
+          pointBackgroundColor: '#38bdf8',
+          pointBorderColor: '#07090d', pointBorderWidth: 1.5,
+        },
+        // 日本（年次・ポイント強調）
+        {
+          label: '日本',
+          data: jpVals,
+          borderColor: '#fb923c',
+          backgroundColor: grad('#fb923c'),
+          borderWidth: 2, tension: 0.3, fill: 'origin', order: 2,
+          spanGaps: true,
+          pointRadius: (ctx) => jpVals[ctx.dataIndex] !== null ? 4 : 0,
+          pointHoverRadius: 7,
+          pointBackgroundColor: '#fb923c',
+          pointBorderColor: '#07090d', pointBorderWidth: 1.5,
+        },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      animation: { duration: 600 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0c1016',
+          borderColor: '#182030', borderWidth: 1,
+          titleColor: '#cbd5e1', bodyColor: '#94a3b8',
+          padding: 14,
+          callbacks: {
+            label(c) {
+              if (c.dataset.label.includes('適正')) return null;
+              if (c.parsed.y === null) return null;
+              return ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`;
+            },
+            afterBody(items) {
+              const u = items.find(i => i.dataset.label === '米国');
+              const j = items.find(i => i.dataset.label === '日本');
+              if (u?.parsed.y != null && j?.parsed.y != null) {
+                const d = (u.parsed.y - j.parsed.y).toFixed(1);
+                return [` 乖離幅: ${d > 0 ? '+' : ''}${d}pp`];
+              }
+              return [];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.03)' },
+          ticks: {
+            maxTicksLimit: 14, font: { size: 10 },
+            maxRotation: 0,
+          }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          ticks: { callback: v => v + '%', stepSize: 30, font: { size: 10 } },
+          min: 0, max: 280,
+        }
+      }
+    },
+    plugins: [{
+      // 背景ゾーン色帯
+      id: 'zoneBands',
+      beforeDraw(ch) {
+        const { ctx, scales: { y, x } } = ch;
+        [
+          { lo: 0,   hi: 90,  c: 'rgba(52,211,153,0.04)' },
+          { lo: 90,  hi: 120, c: 'rgba(251,191,36,0.04)' },
+          { lo: 120, hi: 280, c: 'rgba(248,113,113,0.035)' },
+        ].forEach(b => {
+          ctx.fillStyle = b.c;
+          ctx.fillRect(
+            x.left,
+            y.getPixelForValue(b.hi),
+            x.right - x.left,
+            y.getPixelForValue(b.lo) - y.getPixelForValue(b.hi)
+          );
+        });
+      }
+    }]
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UI 更新
+// ═══════════════════════════════════════════════════════════
+function updateStats(usData, jpData) {
+  const lu = usData.at(-1);
+  const lj = jpData.at(-1);
+
+  document.getElementById('val-us').textContent = lu.value.toFixed(1) + '%';
+  document.getElementById('sub-us').textContent =
+    `${lu.date.slice(0, 7)}（FRED月次）`;
+
+  document.getElementById('val-jp').textContent = lj.value.toFixed(1) + '%';
+  document.getElementById('sub-jp').textContent =
+    `${lj.date.slice(0, 4)}年（World Bank年次）`;
+
+  const gap = lu.value - lj.value;
+  document.getElementById('val-gap').textContent =
+    (gap > 0 ? '+' : '') + gap.toFixed(1) + 'pp';
+
+  const [bc1, bt1] = makeBadge(lu.value);
+  const [bc2, bt2] = makeBadge(lj.value);
+  document.getElementById('badge-us').innerHTML =
+    `<div class="badge ${bc1}">${bt1}</div>`;
+  document.getElementById('badge-jp').innerHTML =
+    `<div class="badge ${bc2}">${bt2}</div>`;
+
+  document.getElementById('utime').textContent =
+    `最終取得: ${new Date().toLocaleString('ja-JP')}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  メインロード処理
+// ═══════════════════════════════════════════════════════════
+async function loadData() {
+  const loader = document.getElementById('loader');
+  loader.innerHTML = `
+    <div class="spin"></div>
+    <div class="ltxt">FRED &amp; World Bank からデータ取得中…</div>`;
+  loader.classList.remove('off');
+
+  // 既存タイマーをクリア
+  if (refreshTimer) clearTimeout(refreshTimer);
+
+  try {
+    const apiKey = getKey();
+    const [usData, jpData] = await Promise.all([
+      getUSBuffett(apiKey),
+      wbFetch('JP'),
+    ]);
+
+    if (!usData.length || !jpData.length) throw new Error('データが空です');
+
+    updateStats(usData, jpData);
+    renderChart(usData, jpData);
+    loader.classList.add('off');
+
+    // 1時間後に自動再取得
+    refreshTimer = setTimeout(loadData, REFRESH_MS);
+
+  } catch (e) {
+    console.error(e);
+    loader.innerHTML = `
+      <div class="lerr">
+        ⚠ データ取得エラー：${e.message}<br><br>
+        <small>APIキーを確認するか、再取得ボタンを押してください。<br>
+        無効なキーの場合は「API設定」から再入力できます。</small>
+      </div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ページ初期化
+// ═══════════════════════════════════════════════════════════
+function showSetup() {
+  document.getElementById('setup-screen').hidden = false;
+  document.getElementById('dashboard').hidden    = true;
+}
+
+function showDashboard() {
+  document.getElementById('setup-screen').hidden = true;
+  document.getElementById('dashboard').hidden    = false;
+  loadData();
+}
+
+// セットアップ画面：開始ボタン
+document.getElementById('key-btn').addEventListener('click', () => {
+  const key = document.getElementById('key-input').value.trim();
+  const errEl = document.getElementById('setup-err');
+
+  // 簡易バリデーション（FREDのキーは32文字の英数字）
+  if (!/^[a-zA-Z0-9]{32}$/.test(key)) {
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  saveKey(key);
+  showDashboard();
+});
+
+// Enterキーでも開始
+document.getElementById('key-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('key-btn').click();
+});
+
+// ダッシュボード：再取得
+document.getElementById('refresh-btn').addEventListener('click', loadData);
+
+// ダッシュボード：API設定リセット
+document.getElementById('reset-btn').addEventListener('click', () => {
+  clearKey();
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  showSetup();
+});
+
+// ─── 起動 ────────────────────────────────────────────────
+if (getKey()) {
+  showDashboard();
+} else {
+  showSetup();
+}
+</script>
+</body>
+</html>
