@@ -35,80 +35,11 @@
     }
     .wrap{max-width:980px;margin:0 auto;position:relative;z-index:1;}
 
-    /* ── SETUP SCREEN ── */
-    #setup-screen{
-      min-height:100vh;display:flex;align-items:center;justify-content:center;
-      animation:up .5s ease both;
-    }
-    .setup-card{
-      background:var(--panel);border:1px solid var(--bdr);
-      border-radius:16px;padding:40px 36px;max-width:480px;width:100%;
-      position:relative;overflow:hidden;
-    }
-    .setup-card::before{
-      content:'';position:absolute;top:0;left:0;right:0;height:3px;
-      background:linear-gradient(90deg,var(--us),var(--jp));
-    }
-    .setup-icon{font-size:36px;margin-bottom:16px;}
-    .setup-card h2{
-      font-size:22px;font-weight:700;color:var(--bright);margin-bottom:8px;
-    }
-    .setup-card p{
-      font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:24px;
-    }
-    .steps{
-      background:#080c12;border:1px solid var(--bdr);
-      border-radius:10px;padding:18px 20px;margin-bottom:24px;
-    }
-    .step{
-      display:flex;align-items:flex-start;gap:12px;
-      font-size:13px;line-height:1.6;margin-bottom:10px;
-    }
-    .step:last-child{margin-bottom:0;}
-    .step-num{
-      background:rgba(56,189,248,.15);color:var(--us);
-      font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
-      width:22px;height:22px;border-radius:50%;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
-      margin-top:1px;
-    }
-    .step a{color:var(--us);text-decoration:none;}
-    .step a:hover{text-decoration:underline;}
-    .input-row{display:flex;gap:8px;margin-bottom:12px;}
-    #key-input{
-      flex:1;background:#080c12;border:1px solid var(--bdr);
-      border-radius:8px;padding:10px 14px;
-      font-family:'IBM Plex Mono',monospace;font-size:13px;
-      color:var(--bright);outline:none;
-      transition:border-color .2s;
-    }
-    #key-input:focus{border-color:var(--us);}
-    #key-input::placeholder{color:var(--dim);}
-    #key-btn{
-      background:var(--us);color:#07090d;
-      border:none;border-radius:8px;padding:10px 18px;
-      font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
-      cursor:pointer;white-space:nowrap;transition:opacity .2s;
-    }
-    #key-btn:hover{opacity:.85;}
-    .setup-note{
-      font-family:'IBM Plex Mono',monospace;font-size:10px;
-      color:var(--dim);text-align:center;line-height:1.7;
-    }
-    .err-msg{
-      color:var(--dngr);font-size:12px;
-      font-family:'IBM Plex Mono',monospace;
-      margin-bottom:10px;display:none;
-    }
-
-    /* ── DASHBOARD ── */
-    #dashboard{animation:up .4s ease both;}
-
-    /* header */
+    /* ── HEADER ── */
     .head{
       display:flex;flex-wrap:wrap;gap:14px;
       align-items:flex-end;justify-content:space-between;
-      margin-bottom:26px;
+      margin-bottom:26px;animation:up .5s ease both;
     }
     .head-left{border-left:3px solid var(--us);padding-left:14px;}
     .eyebrow{
@@ -116,7 +47,7 @@
       font-size:10px;letter-spacing:3px;
       color:var(--us);text-transform:uppercase;margin-bottom:6px;
     }
-    h1{font-size:clamp(18px,4vw,27px);font-weight:700;color:var(--bright);}
+    h1{font-size:clamp(18px,4vw,27px);font-weight:700;color:var(--bright);line-height:1.25;}
     h1 .us{color:var(--us);}
     h1 .jp{color:var(--jp);}
     .head-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -124,7 +55,7 @@
       display:flex;align-items:center;gap:7px;
       background:rgba(52,211,153,.08);
       border:1px solid rgba(52,211,153,.25);
-      border-radius:999px;padding:5px 13px;
+      border-radius:999px;padding:5px 14px;
       font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--safe);
     }
     .dot{
@@ -133,16 +64,16 @@
     }
     .icon-btn{
       background:transparent;border:1px solid var(--bdr);
-      border-radius:8px;padding:6px 12px;
+      border-radius:8px;padding:6px 14px;
       font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);
       cursor:pointer;transition:all .2s;
     }
     .icon-btn:hover{border-color:var(--us);color:var(--us);}
 
-    /* cards */
+    /* ── CARDS ── */
     .cards{
       display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
-      gap:10px;margin-bottom:20px;
+      gap:10px;margin-bottom:20px;animation:up .5s .1s ease both;
     }
     .card{
       background:var(--panel);border:1px solid var(--bdr);
@@ -176,10 +107,11 @@
     .bw{background:rgba(251,191,36,.12); color:var(--warn);border:1px solid rgba(251,191,36,.3);}
     .bs{background:rgba(52,211,153,.1);  color:var(--safe);border:1px solid rgba(52,211,153,.25);}
 
-    /* chart panel */
+    /* ── CHART ── */
     .cpanel{
       background:var(--panel);border:1px solid var(--bdr);
       border-radius:12px;padding:22px 18px;margin-bottom:16px;
+      animation:up .5s .2s ease both;
     }
     .ctop{
       display:flex;flex-wrap:wrap;align-items:center;
@@ -192,12 +124,12 @@
     .ldot{width:12px;height:3px;border-radius:2px;}
     .cbox{position:relative;height:380px;}
 
-    /* loading overlay */
+    /* loading */
     .loader{
       position:absolute;inset:0;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       gap:14px;background:var(--panel);border-radius:8px;z-index:5;
-      transition:opacity .3s;
+      transition:opacity .4s;
     }
     .loader.off{opacity:0;pointer-events:none;}
     .spin{
@@ -205,26 +137,23 @@
       border:2px solid var(--bdr);border-top-color:var(--us);
       animation:spin .7s linear infinite;
     }
-    .ltxt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);text-align:center;}
-    .lerr{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dngr);text-align:center;padding:0 20px;}
+    .ltxt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);text-align:center;line-height:1.8;}
+    .lerr{
+      font-family:'IBM Plex Mono',monospace;font-size:12px;
+      color:var(--dngr);text-align:center;padding:0 24px;line-height:1.8;
+    }
 
-    /* footer row */
     .foot-row{
       display:flex;align-items:center;justify-content:space-between;
       flex-wrap:wrap;gap:8px;margin-top:10px;
     }
     .utime{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);}
-    .freq-note{
-      font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);
-      display:flex;gap:14px;
-    }
-    .freq-us{color:rgba(56,189,248,.6);}
-    .freq-jp{color:rgba(251,146,60,.6);}
+    .src-note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);}
 
-    /* zones */
+    /* ── ZONES ── */
     .zones{
       display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      gap:10px;margin-bottom:16px;
+      gap:10px;margin-bottom:16px;animation:up .5s .35s ease both;
     }
     .zone{
       background:var(--panel);border:1px solid var(--bdr);
@@ -236,7 +165,8 @@
     .zdesc{font-size:11px;color:var(--dim);margin-top:3px;}
 
     footer{
-      font-size:11px;color:var(--dim);text-align:center;line-height:2;
+      font-size:11px;color:var(--dim);text-align:center;
+      line-height:2;animation:up .5s .45s ease both;
     }
     footer a{color:#60a5fa;text-decoration:none;}
     footer a:hover{text-decoration:underline;}
@@ -247,61 +177,18 @@
   </style>
 </head>
 <body>
-
-<!-- ══════════════════════════════════════════════
-     SETUP SCREEN (FRED APIキー未設定時に表示)
-══════════════════════════════════════════════ -->
-<div id="setup-screen">
-  <div class="setup-card">
-    <div class="setup-icon">⚡</div>
-    <h2>FRED API キーを設定</h2>
-    <p>米国の<strong style="color:var(--us)">月次リアルタイムデータ</strong>を取得するために、
-       無料の FRED API キーが必要です。<br>
-       日本のデータは World Bank API（キー不要）から自動取得します。</p>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div><a href="https://fredaccount.stlouisfed.org/login/secure/" target="_blank">fredaccount.stlouisfed.org</a> で無料アカウント作成</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div>ログイン後「API Keys」→「Request API Key」をクリック</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div>発行された 32文字のキーを下に貼り付けて「開始」</div>
-      </div>
-    </div>
-
-    <div class="err-msg" id="setup-err">⚠ キーが無効です。32文字の英数字を確認してください。</div>
-    <div class="input-row">
-      <input id="key-input" placeholder="例: abcdef1234567890abcdef1234567890" maxlength="40" />
-      <button id="key-btn">開始 →</button>
-    </div>
-    <div class="setup-note">
-      キーはこのブラウザの localStorage に保存されます。<br>
-      外部サーバーには一切送信されません。
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════
-     MAIN DASHBOARD
-══════════════════════════════════════════════ -->
-<div id="dashboard" hidden>
 <div class="wrap">
 
   <!-- HEADER -->
   <div class="head">
     <div class="head-left">
       <div class="eyebrow">BUFFETT INDICATOR — LIVE DATA</div>
-      <h1>バフェット指数<br><span class="us">米国（月次）</span> vs <span class="jp">日本（年次）</span></h1>
+      <h1>バフェット指数<br>
+          <span class="us">米国</span> vs <span class="jp">日本</span></h1>
     </div>
     <div class="head-right">
-      <div class="live-pill"><div class="dot"></div>AUTO FETCH</div>
+      <div class="live-pill"><div class="dot"></div>World Bank 自動取得</div>
       <button class="icon-btn" id="refresh-btn">↻ 再取得</button>
-      <button class="icon-btn" id="reset-btn">⚙ API設定</button>
     </div>
   </div>
 
@@ -322,7 +209,7 @@
     <div class="card gap">
       <div class="clabel">日米 乖離幅</div>
       <div class="cval" id="val-gap">—</div>
-      <div class="csub">米国が上回る幅</div>
+      <div class="csub" id="sub-gap">—</div>
     </div>
     <div class="card ref">
       <div class="clabel">バフェット適正値</div>
@@ -335,26 +222,25 @@
   <!-- CHART -->
   <div class="cpanel">
     <div class="ctop">
-      <div class="ctitle">MARKET CAP / GDP (%) — 月次 &amp; 年次</div>
+      <div class="ctitle">時価総額 / GDP (%) — 年次</div>
       <div class="legend">
-        <div class="leg"><div class="ldot" style="background:var(--us)"></div>米国（月次・FRED）</div>
-        <div class="leg"><div class="ldot" style="background:var(--jp)"></div>日本（年次・World Bank）</div>
-        <div class="leg"><div class="ldot" style="background:var(--safe);opacity:.6"></div>適正ゾーン</div>
+        <div class="leg"><div class="ldot" style="background:var(--us)"></div>米国</div>
+        <div class="leg"><div class="ldot" style="background:var(--jp)"></div>日本</div>
+        <div class="leg"><div class="ldot" style="background:var(--safe);opacity:.7"></div>適正ゾーン</div>
       </div>
     </div>
     <div class="cbox">
       <div class="loader" id="loader">
         <div class="spin"></div>
-        <div class="ltxt">FRED API &amp; World Bank からデータ取得中…</div>
+        <div class="ltxt">World Bank API からデータ取得中…<br>
+          <span style="font-size:10px;opacity:.6">米国・日本を並列取得しています</span>
+        </div>
       </div>
       <canvas id="chart"></canvas>
     </div>
     <div class="foot-row">
       <div class="utime" id="utime">—</div>
-      <div class="freq-note">
-        <span class="freq-us">● 米国：月次更新</span>
-        <span class="freq-jp">● 日本：年次更新</span>
-      </div>
+      <div class="src-note">出典: World Bank CM.MKT.LCAP.GD.ZS（年次・自動更新）</div>
     </div>
   </div>
 
@@ -375,241 +261,128 @@
   </div>
 
   <footer>
-    米国データ：<a href="https://fred.stlouisfed.org/series/WILL5000INDFC" target="_blank">FRED WILL5000INDFC</a>（Wilshire 5000 Full Cap Index）÷
-    <a href="https://fred.stlouisfed.org/series/GDP" target="_blank">GDP</a>（名目・四半期）×100　月次近似値<br>
-    日本データ：<a href="https://data.worldbank.org/indicator/CM.MKT.LCAP.GD.ZS" target="_blank">World Bank CM.MKT.LCAP.GD.ZS</a>（上場時価総額 ÷ GDP）　年次<br>
+    データ出典：<a href="https://data.worldbank.org/indicator/CM.MKT.LCAP.GD.ZS" target="_blank">World Bank — CM.MKT.LCAP.GD.ZS</a>
+    （上場企業時価総額 ÷ GDP × 100）<br>
+    ページ読み込み時に API から自動取得。データは年次で World Bank の更新タイミングに依存します。<br>
     本チャートは情報提供目的であり、投資助言ではありません。
   </footer>
-</div>
-</div><!-- /dashboard -->
+
+</div><!-- /wrap -->
 
 <script>
-// ═══════════════════════════════════════════════════════════
-//  CONSTANTS
-// ═══════════════════════════════════════════════════════════
-const LS_KEY      = 'fred_buffett_api_key';
-const FRED_BASE   = 'https://api.stlouisfed.org/fred/series/observations';
-const PROXY       = 'https://corsproxy.io/?'; // fallback if FRED blocks direct CORS
-const REFRESH_MS  = 60 * 60 * 1000;           // 1時間ごとに自動再取得
-const START_DATE  = '1995-01-01';
+// ═══════════════════════════════════════════════════════════════
+//  World Bank API（キー不要・CORS完全対応）
+//  CM.MKT.LCAP.GD.ZS = 上場時価総額 ÷ GDP（%）= バフェット指数
+// ═══════════════════════════════════════════════════════════════
+const REFRESH_MS = 60 * 60 * 1000; // 1時間ごと自動更新
+let chartInst = null;
+let timer     = null;
 
-let chartInstance = null;
-let refreshTimer  = null;
-
-// ═══════════════════════════════════════════════════════════
-//  API KEY MANAGEMENT
-// ═══════════════════════════════════════════════════════════
-const getKey   = ()  => localStorage.getItem(LS_KEY) || '';
-const saveKey  = (k) => localStorage.setItem(LS_KEY, k.trim());
-const clearKey = ()  => localStorage.removeItem(LS_KEY);
-
-// ═══════════════════════════════════════════════════════════
-//  FRED API FETCH
-//  - 直接アクセス（FRED は CORS 対応）
-//  - 400 = APIキー無効、他のエラーはプロキシ経由で再試行
-// ═══════════════════════════════════════════════════════════
-async function fredFetch(seriesId, apiKey) {
-  const params = new URLSearchParams({
-    series_id:         seriesId,
-    api_key:           apiKey,
-    file_type:         'json',
-    observation_start: START_DATE,
-  });
-  const directUrl = `${FRED_BASE}?${params}`;
-
-  let lastError = null;
-
-  // ① 直接アクセス
-  try {
-    const r = await fetch(directUrl);
-    const j = await r.json();
-    if (!r.ok) {
-      // 400 = APIキー不正 → プロキシで試しても同じなので即エラー
-      const msg = j?.error_message || `HTTP ${r.status}`;
-      if (r.status === 400) throw new Error('APIキーが無効です。正しい32文字のキーを再入力してください。');
-      throw new Error(msg);
-    }
-    return j.observations || [];
-  } catch (e) {
-    lastError = e;
-    // APIキーエラーはそのまま投げる
-    if (e.message.includes('APIキーが無効')) throw e;
-  }
-
-  // ② CORSブロック等の場合のみプロキシ経由で再試行
-  try {
-    const r2 = await fetch(PROXY + encodeURIComponent(directUrl));
-    const j2 = await r2.json();
-    if (!r2.ok) {
-      const msg = j2?.error_message || '';
-      if (r2.status === 400 || msg.includes('api_key'))
-        throw new Error('APIキーが無効です。正しい32文字のキーを再入力してください。');
-      throw new Error(`データ取得失敗 (${r2.status})`);
-    }
-    return j2.observations || [];
-  } catch (e) {
-    throw e.message.includes('APIキー') ? e : (lastError || e);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  WORLD BANK API FETCH（キー不要・CORS対応）
-// ═══════════════════════════════════════════════════════════
-async function wbFetch(country) {
+async function fetchWB(countryCode) {
   const url =
-    `https://api.worldbank.org/v2/country/${country}` +
-    `/indicator/CM.MKT.LCAP.GD.ZS?format=json&per_page=50&mrv=50`;
+    `https://api.worldbank.org/v2/country/${countryCode}` +
+    `/indicator/CM.MKT.LCAP.GD.ZS` +
+    `?format=json&per_page=60&mrv=60`;
   const r = await fetch(url);
-  if (!r.ok) throw new Error(`World Bank HTTP ${r.status}`);
-  const j = await r.json();
-  return (j[1] || [])
+  if (!r.ok) throw new Error(`World Bank HTTP ${r.status}（${countryCode}）`);
+  const json = await r.json();
+  if (!json[1]) throw new Error(`データなし（${countryCode}）`);
+  return json[1]
     .filter(d => d.value !== null)
-    .map(d => ({ date: `${d.date}-07-01`, value: +d.value.toFixed(2) }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+    .map(d => ({ year: +d.date, value: +d.value.toFixed(2) }))
+    .sort((a, b) => a.year - b.year);
 }
 
-// ═══════════════════════════════════════════════════════════
-//  US バフェット指数の計算
-//  Wilshire5000 ÷ 名目GDP × 100（月次近似）
-// ═══════════════════════════════════════════════════════════
-async function getUSBuffett(apiKey) {
-  // 並列で2系列取得
-  const [willObs, gdpObs] = await Promise.all([
-    fredFetch('WILL5000INDFC', apiKey), // Wilshire Full Cap Index（月次）
-    fredFetch('GDP',           apiKey), // 名目GDP・十億ドル（四半期）
-  ]);
-
-  // GDPを日付→値のマップに変換（四半期 → 月次に前方補完）
-  const gdpSorted = gdpObs
-    .filter(o => o.value !== '.')
-    .map(o => ({ date: o.date, value: +o.value }))
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-  function lookupGDP(dateStr) {
-    let v = null;
-    for (const g of gdpSorted) {
-      if (g.date <= dateStr) v = g.value;
-      else break;
-    }
-    return v;
-  }
-
-  // 月次バフェット指数を計算
-  return willObs
-    .filter(o => o.value !== '.')
-    .map(o => {
-      const gdp = lookupGDP(o.date);
-      if (!gdp || !+o.value) return null;
-      // Wilshire Full Cap Index ≈ 総時価総額（十億ドル）
-      // GDP も十億ドル単位 → 比率 × 100 = %
-      const pct = +((+o.value / gdp) * 100).toFixed(2);
-      return { date: o.date, value: pct };
-    })
-    .filter(Boolean);
-}
-
-// ═══════════════════════════════════════════════════════════
-//  BADGE ヘルパー
-// ═══════════════════════════════════════════════════════════
-function makeBadge(v) {
+// ── バッジ ─────────────────────────────────────────────────────
+function getBadge(v) {
   if (v < 75)  return ['bs', '割安 / UNDERVALUED'];
   if (v < 90)  return ['bs', '適正 / FAIR VALUE'];
   if (v < 120) return ['bw', '要注意 / MODERATE'];
   return ['bd', '割高警戒 / OVERVALUED'];
 }
 
-// ═══════════════════════════════════════════════════════════
-//  CHART 描画
-// ═══════════════════════════════════════════════════════════
-function renderChart(usData, jpData) {
+// ── チャート描画 ────────────────────────────────────────────────
+function drawChart(usData, jpData) {
   Chart.defaults.color       = '#475569';
   Chart.defaults.borderColor = '#182030';
   Chart.defaults.font.family = "'IBM Plex Mono', monospace";
 
-  const canvas = document.getElementById('chart');
-  const ctx    = canvas.getContext('2d');
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
 
-  // グラデーション生成
-  function grad(hex) {
+  const ctx = document.getElementById('chart').getContext('2d');
+
+  // グラデーション
+  const grd = (hex) => {
     const g = ctx.createLinearGradient(0, 0, 0, 380);
-    g.addColorStop(0, hex + '20');
+    g.addColorStop(0, hex + '28');
     g.addColorStop(1, hex + '00');
     return g;
-  }
-
-  // 既存チャートを破棄
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-
-  // 全データポイントをひとつの時系列に統合
-  const allDates = [
-    ...usData.map(d => d.date),
-    ...jpData.map(d => d.date),
-  ].sort().filter((v, i, a) => a.indexOf(v) === i);
-
-  const usMap = Object.fromEntries(usData.map(d => [d.date, d.value]));
-  const jpMap = Object.fromEntries(jpData.map(d => [d.date, d.value]));
-
-  const labels = allDates;
-  const usVals = allDates.map(d => usMap[d] ?? null);
-  const jpVals = allDates.map(d => jpMap[d] ?? null);
-
-  // ラベルを年/月に整形
-  const fmtLabel = (dateStr) => {
-    const [y, m] = dateStr.split('-');
-    return m === '01' ? y : `${y}/${+m}`;
   };
 
-  chartInstance = new Chart(ctx, {
+  // 年軸をマージ
+  const allYears = [...new Set([
+    ...usData.map(d => d.year),
+    ...jpData.map(d => d.year),
+  ])].sort((a, b) => a - b);
+
+  const usMap = Object.fromEntries(usData.map(d => [d.year, d.value]));
+  const jpMap = Object.fromEntries(jpData.map(d => [d.year, d.value]));
+
+  const usVals = allYears.map(y => usMap[y] ?? null);
+  const jpVals = allYears.map(y => jpMap[y] ?? null);
+
+  chartInst = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels.map(fmtLabel),
+      labels: allYears,
       datasets: [
-        // 適正ゾーン（上限 → 下限を塗りつぶし）
+        // 適正ゾーン帯
         {
           label: '適正上限',
-          data: labels.map(() => 90),
+          data: allYears.map(() => 90),
           borderColor: 'transparent',
           backgroundColor: 'rgba(52,211,153,0.07)',
-          borderWidth: 0, pointRadius: 0, fill: '+1', order: 10,
+          borderWidth: 0, pointRadius: 0,
+          fill: '+1', order: 10,
         },
         {
           label: '適正下限',
-          data: labels.map(() => 75),
-          borderColor: 'rgba(52,211,153,0.35)',
+          data: allYears.map(() => 75),
+          borderColor: 'rgba(52,211,153,0.4)',
           backgroundColor: 'transparent',
-          borderWidth: 1, borderDash: [5, 5], pointRadius: 0, fill: false, order: 10,
+          borderWidth: 1, borderDash: [5, 5],
+          pointRadius: 0, fill: false, order: 10,
         },
-        // 米国（月次）
+        // 米国
         {
           label: '米国',
           data: usVals,
           borderColor: '#38bdf8',
-          backgroundColor: grad('#38bdf8'),
-          borderWidth: 2, tension: 0.3, fill: 'origin', order: 1,
-          spanGaps: false,
-          pointRadius: 0, pointHoverRadius: 5,
+          backgroundColor: grd('#38bdf8'),
+          borderWidth: 2.5, tension: 0.35,
+          fill: 'origin', order: 1, spanGaps: true,
+          pointRadius: 3.5, pointHoverRadius: 7,
           pointBackgroundColor: '#38bdf8',
-          pointBorderColor: '#07090d', pointBorderWidth: 1.5,
+          pointBorderColor: '#07090d', pointBorderWidth: 2,
         },
-        // 日本（年次・ポイント強調）
+        // 日本
         {
           label: '日本',
           data: jpVals,
           borderColor: '#fb923c',
-          backgroundColor: grad('#fb923c'),
-          borderWidth: 2, tension: 0.3, fill: 'origin', order: 2,
-          spanGaps: true,
-          pointRadius: (ctx) => jpVals[ctx.dataIndex] !== null ? 4 : 0,
-          pointHoverRadius: 7,
+          backgroundColor: grd('#fb923c'),
+          borderWidth: 2.5, tension: 0.35,
+          fill: 'origin', order: 2, spanGaps: true,
+          pointRadius: 3.5, pointHoverRadius: 7,
           pointBackgroundColor: '#fb923c',
-          pointBorderColor: '#07090d', pointBorderWidth: 1.5,
+          pointBorderColor: '#07090d', pointBorderWidth: 2,
         },
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      animation: { duration: 600 },
+      animation: { duration: 700 },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -618,6 +391,7 @@ function renderChart(usData, jpData) {
           titleColor: '#cbd5e1', bodyColor: '#94a3b8',
           padding: 14,
           callbacks: {
+            title: ([c]) => `${c.label}年`,
             label(c) {
               if (c.dataset.label.includes('適正')) return null;
               if (c.parsed.y === null) return null;
@@ -637,33 +411,28 @@ function renderChart(usData, jpData) {
       },
       scales: {
         x: {
-          grid: { color: 'rgba(255,255,255,0.03)' },
-          ticks: {
-            maxTicksLimit: 14, font: { size: 10 },
-            maxRotation: 0,
-          }
+          grid: { color: 'rgba(255,255,255,0.035)' },
+          ticks: { maxTicksLimit: 14, font: { size: 10 }, maxRotation: 0 }
         },
         y: {
           grid: { color: 'rgba(255,255,255,0.05)' },
           ticks: { callback: v => v + '%', stepSize: 30, font: { size: 10 } },
-          min: 0, max: 280,
+          min: 0, max: 260,
         }
       }
     },
     plugins: [{
-      // 背景ゾーン色帯
-      id: 'zoneBands',
+      id: 'bands',
       beforeDraw(ch) {
         const { ctx, scales: { y, x } } = ch;
         [
-          { lo: 0,   hi: 90,  c: 'rgba(52,211,153,0.04)' },
-          { lo: 90,  hi: 120, c: 'rgba(251,191,36,0.04)' },
-          { lo: 120, hi: 280, c: 'rgba(248,113,113,0.035)' },
+          { lo: 0,   hi: 90,  c: 'rgba(52,211,153,0.04)'  },
+          { lo: 90,  hi: 120, c: 'rgba(251,191,36,0.04)'  },
+          { lo: 120, hi: 260, c: 'rgba(248,113,113,0.04)' },
         ].forEach(b => {
           ctx.fillStyle = b.c;
           ctx.fillRect(
-            x.left,
-            y.getPixelForValue(b.hi),
+            x.left, y.getPixelForValue(b.hi),
             x.right - x.left,
             y.getPixelForValue(b.lo) - y.getPixelForValue(b.hi)
           );
@@ -673,126 +442,75 @@ function renderChart(usData, jpData) {
   });
 }
 
-// ═══════════════════════════════════════════════════════════
-//  UI 更新
-// ═══════════════════════════════════════════════════════════
+// ── UI 更新 ─────────────────────────────────────────────────────
 function updateStats(usData, jpData) {
   const lu = usData.at(-1);
   const lj = jpData.at(-1);
 
   document.getElementById('val-us').textContent = lu.value.toFixed(1) + '%';
-  document.getElementById('sub-us').textContent =
-    `${lu.date.slice(0, 7)}（FRED月次）`;
+  document.getElementById('sub-us').textContent = `${lu.year}年データ（World Bank）`;
 
   document.getElementById('val-jp').textContent = lj.value.toFixed(1) + '%';
-  document.getElementById('sub-jp').textContent =
-    `${lj.date.slice(0, 4)}年（World Bank年次）`;
+  document.getElementById('sub-jp').textContent = `${lj.year}年データ（World Bank）`;
 
-  const gap = lu.value - lj.value;
-  document.getElementById('val-gap').textContent =
-    (gap > 0 ? '+' : '') + gap.toFixed(1) + 'pp';
+  const gap = (lu.value - lj.value).toFixed(1);
+  document.getElementById('val-gap').textContent = (gap > 0 ? '+' : '') + gap + 'pp';
+  document.getElementById('sub-gap').textContent = `米国が日本を上回る幅`;
 
-  const [bc1, bt1] = makeBadge(lu.value);
-  const [bc2, bt2] = makeBadge(lj.value);
-  document.getElementById('badge-us').innerHTML =
-    `<div class="badge ${bc1}">${bt1}</div>`;
-  document.getElementById('badge-jp').innerHTML =
-    `<div class="badge ${bc2}">${bt2}</div>`;
+  const [bc1, bt1] = getBadge(lu.value);
+  const [bc2, bt2] = getBadge(lj.value);
+  document.getElementById('badge-us').innerHTML = `<div class="badge ${bc1}">${bt1}</div>`;
+  document.getElementById('badge-jp').innerHTML = `<div class="badge ${bc2}">${bt2}</div>`;
 
   document.getElementById('utime').textContent =
     `最終取得: ${new Date().toLocaleString('ja-JP')}`;
 }
 
-// ═══════════════════════════════════════════════════════════
-//  メインロード処理
-// ═══════════════════════════════════════════════════════════
+// ── メインロード ────────────────────────────────────────────────
 async function loadData() {
   const loader = document.getElementById('loader');
   loader.innerHTML = `
     <div class="spin"></div>
-    <div class="ltxt">FRED &amp; World Bank からデータ取得中…</div>`;
+    <div class="ltxt">World Bank API からデータ取得中…<br>
+      <span style="font-size:10px;opacity:.6">米国・日本を並列取得しています</span>
+    </div>`;
   loader.classList.remove('off');
 
-  // 既存タイマーをクリア
-  if (refreshTimer) clearTimeout(refreshTimer);
+  if (timer) clearTimeout(timer);
 
   try {
-    const apiKey = getKey();
     const [usData, jpData] = await Promise.all([
-      getUSBuffett(apiKey),
-      wbFetch('JP'),
+      fetchWB('US'),
+      fetchWB('JP'),
     ]);
 
-    if (!usData.length || !jpData.length) throw new Error('データが空です');
+    if (!usData.length || !jpData.length)
+      throw new Error('データが空です。しばらく待ってから再取得してください。');
 
     updateStats(usData, jpData);
-    renderChart(usData, jpData);
+    drawChart(usData, jpData);
     loader.classList.add('off');
 
     // 1時間後に自動再取得
-    refreshTimer = setTimeout(loadData, REFRESH_MS);
+    timer = setTimeout(loadData, REFRESH_MS);
 
   } catch (e) {
     console.error(e);
     loader.innerHTML = `
       <div class="lerr">
-        ⚠ データ取得エラー：${e.message}<br><br>
-        <small>APIキーを確認するか、再取得ボタンを押してください。<br>
-        無効なキーの場合は「API設定」から再入力できます。</small>
+        ⚠ ${e.message}<br><br>
+        <span style="font-size:10px;opacity:.7">
+          ネット接続を確認のうえ、↻ 再取得ボタンを押してください
+        </span>
       </div>`;
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-//  ページ初期化
-// ═══════════════════════════════════════════════════════════
-function showSetup() {
-  document.getElementById('setup-screen').hidden = false;
-  document.getElementById('dashboard').hidden    = true;
-}
-
-function showDashboard() {
-  document.getElementById('setup-screen').hidden = true;
-  document.getElementById('dashboard').hidden    = false;
-  loadData();
-}
-
-// セットアップ画面：開始ボタン
-document.getElementById('key-btn').addEventListener('click', () => {
-  const key = document.getElementById('key-input').value.trim();
-  const errEl = document.getElementById('setup-err');
-
-  // 簡易バリデーション（FREDのキーは32文字の英数字）
-  if (!/^[a-zA-Z0-9]{32}$/.test(key)) {
-    errEl.style.display = 'block';
-    return;
-  }
-  errEl.style.display = 'none';
-  saveKey(key);
-  showDashboard();
-});
-
-// Enterキーでも開始
-document.getElementById('key-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('key-btn').click();
-});
-
-// ダッシュボード：再取得
+// ── イベント ────────────────────────────────────────────────────
 document.getElementById('refresh-btn').addEventListener('click', loadData);
 
-// ダッシュボード：API設定リセット
-document.getElementById('reset-btn').addEventListener('click', () => {
-  clearKey();
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-  showSetup();
-});
-
-// ─── 起動 ────────────────────────────────────────────────
-if (getKey()) {
-  showDashboard();
-} else {
-  showSetup();
-}
+// ── 起動 ────────────────────────────────────────────────────────
+loadData();
 </script>
 </body>
 </html>
