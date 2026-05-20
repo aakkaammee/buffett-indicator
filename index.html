@@ -152,7 +152,7 @@
 
     /* ── ZONES ── */
     .zones{
-      display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
       gap:10px;margin-bottom:16px;animation:up .5s .35s ease both;
     }
     .zone{
@@ -248,17 +248,33 @@
 
   <!-- ZONES -->
   <div class="zones">
-    <div class="zone">
-      <div class="zb" style="background:var(--safe)"></div>
-      <div><div class="zrange">〜90%</div><div class="zdesc">割安 ／ 買いシグナル（バフェット推奨）</div></div>
+    <div class="zone" style="border-color:rgba(52,211,153,.3);background:linear-gradient(135deg,rgba(52,211,153,.08),transparent)">
+      <div class="zb" style="background:linear-gradient(to bottom,#34d399,#6ee7b7)"></div>
+      <div>
+        <div class="zrange" style="color:#34d399">〜90%</div>
+        <div class="zdesc">割安 ／ 買いシグナル<br><span style="color:#34d399;font-size:10px">● COOL — バフェット推奨ゾーン</span></div>
+      </div>
     </div>
-    <div class="zone">
-      <div class="zb" style="background:var(--warn)"></div>
-      <div><div class="zrange">90〜120%</div><div class="zdesc">やや割高 ／ 要注意ゾーン</div></div>
+    <div class="zone" style="border-color:rgba(253,224,71,.3);background:linear-gradient(135deg,rgba(253,224,71,.07),transparent)">
+      <div class="zb" style="background:linear-gradient(to bottom,#fbbf24,#fde047)"></div>
+      <div>
+        <div class="zrange" style="color:#fbbf24">90〜120%</div>
+        <div class="zdesc">やや割高 ／ 要注意<br><span style="color:#fbbf24;font-size:10px">● WARM — 慎重な姿勢が必要</span></div>
+      </div>
     </div>
-    <div class="zone">
-      <div class="zb" style="background:var(--dngr)"></div>
-      <div><div class="zrange">120%〜</div><div class="zdesc">割高警戒 ／ バブルリスク</div></div>
+    <div class="zone" style="border-color:rgba(249,115,22,.35);background:linear-gradient(135deg,rgba(249,115,22,.09),transparent)">
+      <div class="zb" style="background:linear-gradient(to bottom,#ef4444,#f97316)"></div>
+      <div>
+        <div class="zrange" style="color:#f97316">120〜180%</div>
+        <div class="zdesc">割高警戒 ／ バブルリスク<br><span style="color:#f97316;font-size:10px">● HOT — 大幅な下落リスク</span></div>
+      </div>
+    </div>
+    <div class="zone" style="border-color:rgba(220,38,38,.4);background:linear-gradient(135deg,rgba(220,38,38,.12),transparent)">
+      <div class="zb" style="background:linear-gradient(to bottom,#7f1d1d,#dc2626)"></div>
+      <div>
+        <div class="zrange" style="color:#f87171">180%〜</div>
+        <div class="zdesc">過熱 ／ 歴史的割高水準<br><span style="color:#f87171;font-size:10px">🔥 EXTREME — 現在の米国はここ</span></div>
+      </div>
     </div>
   </div>
 
@@ -496,18 +512,47 @@ function drawChart(usData, jpData) {
       id: 'bands',
       beforeDraw(ch) {
         const { ctx, scales: { y, x } } = ch;
-        [
-          { lo: 0,   hi: 90,  c: 'rgba(52,211,153,0.04)'  },
-          { lo: 90,  hi: 120, c: 'rgba(251,191,36,0.04)'  },
-          { lo: 120, hi: 260, c: 'rgba(248,113,113,0.04)' },
-        ].forEach(b => {
-          ctx.fillStyle = b.c;
-          ctx.fillRect(
-            x.left, y.getPixelForValue(b.hi),
-            x.right - x.left,
-            y.getPixelForValue(b.lo) - y.getPixelForValue(b.hi)
-          );
+        const left   = x.left;
+        const width  = x.right - x.left;
+        const top    = y.getPixelForValue(260);
+        const bottom = y.getPixelForValue(0);
+
+        // ── スムーズ熱感グラデーション（下:緑 → 上:深紅）
+        const heat = ctx.createLinearGradient(0, top, 0, bottom);
+        heat.addColorStop(0.00, 'rgba(220, 38,  38,  0.20)'); // 260% 深紅
+        heat.addColorStop(0.12, 'rgba(239, 68,  68,  0.15)'); // ~230% 赤
+        heat.addColorStop(0.27, 'rgba(249, 115, 22,  0.12)'); // ~190% オレンジ
+        heat.addColorStop(0.42, 'rgba(251, 191, 36,  0.09)'); // ~150% アンバー
+        heat.addColorStop(0.54, 'rgba(253, 224, 71,  0.07)'); // ~120% 黄
+        heat.addColorStop(0.65, 'rgba(134, 239, 172, 0.06)'); //  ~90% 薄緑
+        heat.addColorStop(0.75, 'rgba(52,  211, 153, 0.09)'); //  ~75% 緑
+        heat.addColorStop(1.00, 'rgba(52,  211, 153, 0.02)'); //   0% 薄緑
+        ctx.fillStyle = heat;
+        ctx.fillRect(left, top, width, bottom - top);
+
+        // ── ゾーン境界線（破線）
+        const lines = [
+          { pct: 90,  color: 'rgba(253,224,71,0.35)',  label: 'やや割高' },
+          { pct: 120, color: 'rgba(249,115,22,0.40)',  label: '割高警戒' },
+          { pct: 180, color: 'rgba(239,68, 68,0.40)',  label: '過熱' },
+        ];
+        ctx.save();
+        ctx.font = "10px 'IBM Plex Mono',monospace";
+        lines.forEach(({ pct, color, label }) => {
+          const py = y.getPixelForValue(pct);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 5]);
+          ctx.beginPath();
+          ctx.moveTo(left, py);
+          ctx.lineTo(left + width, py);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = color.replace(/[\d.]+\)$/, '0.7)');
+          ctx.textAlign = 'right';
+          ctx.fillText(label, left + width - 6, py - 4);
         });
+        ctx.restore();
       }
     }]
   });
