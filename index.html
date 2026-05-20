@@ -222,10 +222,12 @@
   <!-- CHART -->
   <div class="cpanel">
     <div class="ctop">
-      <div class="ctitle">時価総額 / GDP (%) — 年次</div>
+      <div class="ctitle">時価総額 / GDP (%) — 年次　<span style="color:var(--dim);font-size:10px">※破線 = 推定値（2024年〜）</span></div>
       <div class="legend">
-        <div class="leg"><div class="ldot" style="background:var(--us)"></div>米国</div>
-        <div class="leg"><div class="ldot" style="background:var(--jp)"></div>日本</div>
+        <div class="leg"><div class="ldot" style="background:var(--us)"></div>米国（確定）</div>
+        <div class="leg"><div class="ldot" style="background:none;width:14px;height:0;border-top:2px dashed #38bdf8;opacity:.8"></div>米国（推定）</div>
+        <div class="leg"><div class="ldot" style="background:var(--jp)"></div>日本（確定）</div>
+        <div class="leg"><div class="ldot" style="background:none;width:14px;height:0;border-top:2px dashed #fb923c;opacity:.8"></div>日本（推定）</div>
         <div class="leg"><div class="ldot" style="background:var(--safe);opacity:.7"></div>適正ゾーン</div>
       </div>
     </div>
@@ -263,7 +265,7 @@
   <footer>
     データ出典：<a href="https://data.worldbank.org/indicator/CM.MKT.LCAP.GD.ZS" target="_blank">World Bank — CM.MKT.LCAP.GD.ZS</a>
     （上場企業時価総額 ÷ GDP × 100）<br>
-    ページ読み込み時に API から自動取得。データは年次で World Bank の更新タイミングに依存します。<br>
+    ページ読み込み時に API から自動取得。<strong style="color:var(--warn)">破線部分（2024年〜）は推定値</strong>：米国は Wilshire5000/BEA、日本は東証/内閣府データを基に算出。<br>
     本チャートは情報提供目的であり、投資助言ではありません。
   </footer>
 
@@ -274,9 +276,23 @@
 //  World Bank API（キー不要・CORS完全対応）
 //  CM.MKT.LCAP.GD.ZS = 上場時価総額 ÷ GDP（%）= バフェット指数
 // ═══════════════════════════════════════════════════════════════
-const REFRESH_MS = 60 * 60 * 1000; // 1時間ごと自動更新
+const REFRESH_MS = 60 * 60 * 1000;
 let chartInst = null;
 let timer     = null;
+
+// ── 2024〜2026 推定値（World Bankの公開遅延を補完）
+// 出典: Wilshire5000/BEA(米国), 東証/内閣府(日本), 2025年5月時点
+const ESTIMATES = {
+  US: [
+    { year: 2024, value: 198.0 },
+    { year: 2025, value: 190.0 },
+    { year: 2026, value: 219.0 },
+  ],
+  JP: [
+    { year: 2024, value: 155.0 },
+    { year: 2025, value: 135.0 },
+  ],
+};
 
 async function fetchWB(countryCode) {
   const url =
@@ -287,10 +303,19 @@ async function fetchWB(countryCode) {
   if (!r.ok) throw new Error(`World Bank HTTP ${r.status}（${countryCode}）`);
   const json = await r.json();
   if (!json[1]) throw new Error(`データなし（${countryCode}）`);
-  return json[1]
+
+  const wbData = json[1]
     .filter(d => d.value !== null)
-    .map(d => ({ year: +d.date, value: +d.value.toFixed(2) }))
+    .map(d => ({ year: +d.date, value: +d.value.toFixed(2), estimated: false }))
     .sort((a, b) => a.year - b.year);
+
+  // World Bankの最新年より新しい推定値だけ追加
+  const latestWBYear = wbData.at(-1)?.year ?? 0;
+  const extras = (ESTIMATES[countryCode] || [])
+    .filter(e => e.year > latestWBYear)
+    .map(e => ({ ...e, estimated: true }));
+
+  return [...wbData, ...extras];
 }
 
 // ── バッジ ─────────────────────────────────────────────────────
@@ -325,11 +350,31 @@ function drawChart(usData, jpData) {
     ...jpData.map(d => d.year),
   ])].sort((a, b) => a - b);
 
-  const usMap = Object.fromEntries(usData.map(d => [d.year, d.value]));
-  const jpMap = Object.fromEntries(jpData.map(d => [d.year, d.value]));
+  const usMap   = Object.fromEntries(usData.map(d => [d.year, d.value]));
+  const jpMap   = Object.fromEntries(jpData.map(d => [d.year, d.value]));
+  const usEstSet = new Set(usData.filter(d => d.estimated).map(d => d.year));
+  const jpEstSet = new Set(jpData.filter(d => d.estimated).map(d => d.year));
 
-  const usVals = allYears.map(y => usMap[y] ?? null);
-  const jpVals = allYears.map(y => jpMap[y] ?? null);
+  // 確定値（World Bank）
+  const usVals = allYears.map(y => (!usEstSet.has(y) && usMap[y] != null) ? usMap[y] : null);
+  const jpVals = allYears.map(y => (!jpEstSet.has(y) && jpMap[y] != null) ? jpMap[y] : null);
+
+  // 推定値（最後の確定値と接続するため、直前の確定値も含める）
+  const usEstVals = allYears.map(y => {
+    if (usEstSet.has(y)) return usMap[y];
+    // 推定値の最初の点に接続するため、その直前の確定値を含める
+    const firstEst = Math.min(...usEstSet);
+    const prev = allYears[allYears.indexOf(y) + 1];
+    if (prev === firstEst) return usMap[y] ?? null;
+    return null;
+  });
+  const jpEstVals = allYears.map(y => {
+    if (jpEstSet.has(y)) return jpMap[y];
+    const firstEst = Math.min(...jpEstSet);
+    const prev = allYears[allYears.indexOf(y) + 1];
+    if (prev === firstEst) return jpMap[y] ?? null;
+    return null;
+  });
 
   chartInst = new Chart(ctx, {
     type: 'line',
@@ -353,29 +398,53 @@ function drawChart(usData, jpData) {
           borderWidth: 1, borderDash: [5, 5],
           pointRadius: 0, fill: false, order: 10,
         },
-        // 米国
+        // 米国（確定）
         {
           label: '米国',
           data: usVals,
           borderColor: '#38bdf8',
           backgroundColor: grd('#38bdf8'),
           borderWidth: 2.5, tension: 0.35,
-          fill: 'origin', order: 1, spanGaps: true,
+          fill: 'origin', order: 1, spanGaps: false,
           pointRadius: 3.5, pointHoverRadius: 7,
           pointBackgroundColor: '#38bdf8',
           pointBorderColor: '#07090d', pointBorderWidth: 2,
         },
-        // 日本
+        // 米国（推定・破線）
+        {
+          label: '米国（推定）',
+          data: usEstVals,
+          borderColor: '#38bdf8',
+          backgroundColor: 'transparent',
+          borderWidth: 2, borderDash: [6, 4], tension: 0.35,
+          fill: false, order: 1, spanGaps: false,
+          pointRadius: 4, pointHoverRadius: 7,
+          pointBackgroundColor: '#07090d',
+          pointBorderColor: '#38bdf8', pointBorderWidth: 2,
+        },
+        // 日本（確定）
         {
           label: '日本',
           data: jpVals,
           borderColor: '#fb923c',
           backgroundColor: grd('#fb923c'),
           borderWidth: 2.5, tension: 0.35,
-          fill: 'origin', order: 2, spanGaps: true,
+          fill: 'origin', order: 2, spanGaps: false,
           pointRadius: 3.5, pointHoverRadius: 7,
           pointBackgroundColor: '#fb923c',
           pointBorderColor: '#07090d', pointBorderWidth: 2,
+        },
+        // 日本（推定・破線）
+        {
+          label: '日本（推定）',
+          data: jpEstVals,
+          borderColor: '#fb923c',
+          backgroundColor: 'transparent',
+          borderWidth: 2, borderDash: [6, 4], tension: 0.35,
+          fill: false, order: 2, spanGaps: false,
+          pointRadius: 4, pointHoverRadius: 7,
+          pointBackgroundColor: '#07090d',
+          pointBorderColor: '#fb923c', pointBorderWidth: 2,
         },
       ]
     },
@@ -395,7 +464,9 @@ function drawChart(usData, jpData) {
             label(c) {
               if (c.dataset.label.includes('適正')) return null;
               if (c.parsed.y === null) return null;
-              return ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`;
+              const isEst = c.dataset.label.includes('推定');
+              const base  = c.dataset.label.replace('（推定）', '');
+              return ` ${base}: ${c.parsed.y.toFixed(1)}%${isEst ? ' ※推定' : ''}`;
             },
             afterBody(items) {
               const u = items.find(i => i.dataset.label === '米国');
@@ -448,10 +519,12 @@ function updateStats(usData, jpData) {
   const lj = jpData.at(-1);
 
   document.getElementById('val-us').textContent = lu.value.toFixed(1) + '%';
-  document.getElementById('sub-us').textContent = `${lu.year}年データ（World Bank）`;
+  document.getElementById('sub-us').textContent =
+    `${lu.year}年${lu.estimated ? '（推定値）' : '（World Bank確定）'}`;
 
   document.getElementById('val-jp').textContent = lj.value.toFixed(1) + '%';
-  document.getElementById('sub-jp').textContent = `${lj.year}年データ（World Bank）`;
+  document.getElementById('sub-jp').textContent =
+    `${lj.year}年${lj.estimated ? '（推定値）' : '（World Bank確定）'}`;
 
   const gap = (lu.value - lj.value).toFixed(1);
   document.getElementById('val-gap').textContent = (gap > 0 ? '+' : '') + gap + 'pp';
